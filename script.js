@@ -1153,78 +1153,84 @@ function generateTable() {
 
     Object.entries(currentAssessmentData).forEach(([attributeName, attributeData]) => {
         const subAttributeKeys = Object.keys(attributeData.subAttributes);
-        let firstRow = true;
-
-        subAttributeKeys.forEach((subAttrName, index) => {
+        
+        // Filter sub-attributes based on search first
+        const filteredSubAttributes = subAttributeKeys.filter(subAttrName => {
             const subAttr = attributeData.subAttributes[subAttrName];
-
+            
             // Gather all phrases for search
             const allPhrases = [
                 ...(subAttr.phrases || []),
                 ...(subAttr.highValuePhrases || []),
-                ...((currentPage === 'positive' ? positiveAdditionalHighValuePhrases : negativeAdditionalHighValuePhrases)[subAttrName] || []),
-                ...((currentPage === 'positive' ? positiveFinalHighValuePhrases : negativeFinalHighValuePhrases)[subAttrName] || []),
-                ...((currentPage === 'positive' ? positiveUltimateHighValuePhrases : negativeUltimateHighValuePhrases)[subAttrName] || [])
+                ...(additionalHighValuePhrases[subAttrName] || []),
+                ...(finalHighValuePhrases[subAttrName] || []),
+                ...(ultimateHighValuePhrases[subAttrName] || [])
             ];
-
-            // Filter by search
-            if (searchTerm && !phraseMatchesSearch(allPhrases)) {
-                return;
-            }
-
-            const row = document.createElement('tr');
-
-            // Attribute cell (spans multiple rows)
-            if (firstRow) {
-                const attributeCell = document.createElement('td');
-                attributeCell.className = 'attribute-cell';
-                attributeCell.textContent = attributeName;
-                attributeCell.rowSpan = subAttributeKeys.length;
-                row.appendChild(attributeCell);
-
-                // Score cell (spans multiple rows)
-                const scoreCell = document.createElement('td');
-                scoreCell.className = 'score-cell' + (currentPage === 'negative' ? ' negative' : '');
-                scoreCell.textContent = attributeData.score;
-                scoreCell.rowSpan = subAttributeKeys.length;
-                row.appendChild(scoreCell);
-
-                firstRow = false;
-            }
-
-            // Sub-attribute cell
-            const subAttrCell = document.createElement('td');
-            subAttrCell.className = 'sub-attribute-cell';
-            subAttrCell.textContent = subAttrName;
-            row.appendChild(subAttrCell);
-
-            // Points cell
-            const pointsCell = document.createElement('td');
-            pointsCell.className = 'points-cell' + (currentPage === 'negative' ? ' negative' : '');
-            pointsCell.textContent = subAttr.points;
-            row.appendChild(pointsCell);
-
-            // Phrase columns
-            const phraseCells = [];
             
-            // Column 1: Basic phrases
-            phraseCells.push(createPhraseCell(subAttr.phrases));
-            
-            // Column 2: High value phrases
-            phraseCells.push(createPhraseCell(subAttr.highValuePhrases, true));
-            
-            // Column 3: Additional high value phrases
-            phraseCells.push(createPhraseCell(additionalHighValuePhrases[subAttrName] || [], true));
-            
-            // Column 4: Final high value phrases
-            phraseCells.push(createPhraseCell(finalHighValuePhrases[subAttrName] || [], true));
-            
-            // Column 5: Ultimate high value phrases
-            phraseCells.push(createPhraseCell(ultimateHighValuePhrases[subAttrName] || [], true));
-
-            phraseCells.forEach(cell => row.appendChild(cell));
-            tableBody.appendChild(row);
+            // Return true if no search term or if phrases match search
+            return !searchTerm || phraseMatchesSearch(allPhrases);
         });
+
+        // Only create rows if there are filtered sub-attributes
+        if (filteredSubAttributes.length > 0) {
+            let firstRow = true;
+
+            filteredSubAttributes.forEach((subAttrName, index) => {
+                const subAttr = attributeData.subAttributes[subAttrName];
+                const row = document.createElement('tr');
+
+                // Attribute cell (spans multiple rows) - only on first visible row
+                if (firstRow) {
+                    const attributeCell = document.createElement('td');
+                    attributeCell.className = 'attribute-cell';
+                    attributeCell.textContent = attributeName;
+                    attributeCell.rowSpan = filteredSubAttributes.length; // Use filtered count
+                    row.appendChild(attributeCell);
+
+                    // Score cell (spans multiple rows) - only on first visible row
+                    const scoreCell = document.createElement('td');
+                    scoreCell.className = 'score-cell' + (currentPage === 'negative' ? ' negative' : '');
+                    scoreCell.textContent = attributeData.score;
+                    scoreCell.rowSpan = filteredSubAttributes.length; // Use filtered count
+                    row.appendChild(scoreCell);
+
+                    firstRow = false;
+                }
+
+                // Sub-attribute cell
+                const subAttrCell = document.createElement('td');
+                subAttrCell.className = 'sub-attribute-cell';
+                subAttrCell.textContent = subAttrName;
+                row.appendChild(subAttrCell);
+
+                // Points cell
+                const pointsCell = document.createElement('td');
+                pointsCell.className = 'points-cell' + (currentPage === 'negative' ? ' negative' : '');
+                pointsCell.textContent = subAttr.points;
+                row.appendChild(pointsCell);
+
+                // Phrase columns
+                const phraseCells = [];
+                
+                // Column 1: Basic phrases
+                phraseCells.push(createPhraseCell(subAttr.phrases));
+                
+                // Column 2: High value phrases
+                phraseCells.push(createPhraseCell(subAttr.highValuePhrases, true));
+                
+                // Column 3: Additional high value phrases
+                phraseCells.push(createPhraseCell(additionalHighValuePhrases[subAttrName] || [], true));
+                
+                // Column 4: Final high value phrases
+                phraseCells.push(createPhraseCell(finalHighValuePhrases[subAttrName] || [], true));
+                
+                // Column 5: Ultimate high value phrases
+                phraseCells.push(createPhraseCell(ultimateHighValuePhrases[subAttrName] || [], true));
+
+                phraseCells.forEach(cell => row.appendChild(cell));
+                tableBody.appendChild(row);
+            });
+        }
     });
 }
 
@@ -1232,14 +1238,21 @@ function createPhraseCell(phrases, isHighValue = false) {
     const cell = document.createElement('td');
     cell.className = `phrase-cell ${isHighValue ? 'high-value' : ''}`;
     
-    if (phrases.length > 0) {
-        const ul = document.createElement('ul');
-        phrases.forEach(phrase => {
-            const li = document.createElement('li');
-            li.innerHTML = searchTerm ? highlightText(phrase, searchTerm) : phrase;
-            ul.appendChild(li);
-        });
-        cell.appendChild(ul);
+    if (phrases && phrases.length > 0) {
+        // Filter phrases based on search if there's a search term
+        const filteredPhrases = searchTerm ? 
+            phrases.filter(phrase => phrase.toLowerCase().includes(searchTerm)) : 
+            phrases;
+            
+        if (filteredPhrases.length > 0) {
+            const ul = document.createElement('ul');
+            filteredPhrases.forEach(phrase => {
+                const li = document.createElement('li');
+                li.innerHTML = searchTerm ? highlightText(phrase, searchTerm) : phrase;
+                ul.appendChild(li);
+            });
+            cell.appendChild(ul);
+        }
     }
     
     return cell;
