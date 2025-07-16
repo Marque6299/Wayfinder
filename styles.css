@@ -29,6 +29,7 @@ body {
 .table-container {
     overflow-x: auto;
     padding: 20px;
+    min-height: 400px;
 }
 
 table {
@@ -64,12 +65,16 @@ th {
 }
 
 .score-cell {
-    background-color: #27ae60;
+    background-color: #27ae60; /* green for positive */
     color: white;
     font-weight: bold;
     text-align: center;
     vertical-align: middle;
     width: 60px;
+}
+.score-cell.negative {
+    background-color: #e74c3c; /* red for negative */
+    color: white;
 }
 
 .sub-attribute-cell {
@@ -82,12 +87,16 @@ th {
 }
 
 .points-cell {
-    background-color: #f39c12;
-    color: white;
+    background-color: #a8e6a3; /* light green for positive */
+    color: #1a3d1a;
     font-weight: bold;
     text-align: center;
     vertical-align: middle;
     width: 60px;
+}
+.points-cell.negative {
+    background-color: #f7b6ae; /* light red for negative */
+    color: #7a2323;
 }
 
 .phrase-cell {
@@ -109,7 +118,8 @@ th {
 }
 
 .phrase-cell li {
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+    line-height: 1.4;
 }
 
 .controls {
@@ -141,43 +151,97 @@ th {
 }
 
 .navigation {
-    padding: 20px;
-    background-color: #2c3e50;
+    padding: 16px 24px;
+    background-color: #f8f9fa;
     display: flex;
-    justify-content: center;
-    gap: 20px;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.nav-btn-group {
+    display: flex;
+    gap: 12px;
 }
 
 .nav-btn {
-    background-color: #34495e;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 4px;
+    background-color: #fff;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    padding: 10px 20px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .nav-btn:hover {
-    background-color: #2c3e50;
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    transform: translateY(-1px);
 }
 
 .nav-btn.active {
     background-color: #3498db;
+    color: white;
+    border-color: #2980b9;
 }
 
 .nav-btn.active:hover {
     background-color: #2980b9;
 }
 
-.page-indicator {
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0 20px;
+.nav-search-group {
+    position: relative;
     display: flex;
     align-items: center;
+}
+
+.search-input {
+    padding: 10px 16px 10px 40px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    width: 300px;
+    transition: all 0.3s ease;
+    background-color: white;
+    color: #495057;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+    outline: none;
+    width: 360px;
+}
+
+.highlight {
+    background-color: #fff3cd;
+    padding: 2px 0;
+    border-radius: 2px;
+    color: #856404;
+    font-weight: 500;
+}
+
+.page-indicator {
+    color: #1a2634;
+    background: linear-gradient(90deg, #eaf1fb 60%, #d4e6fa 100%);
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+    padding: 15px 0 5px 0;
+    text-align: center;
+    letter-spacing: 2px;
+    border-bottom: 4px solid #3498db;
+    border-radius: 0 0 18px 18px;
+    box-shadow: 0 4px 16px rgba(44,62,80,0.07);
+    text-shadow: 0 2px 8px rgba(44,62,80,0.04);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    text-transform: uppercase;
 }
 
 @media (max-width: 768px) {
@@ -193,5 +257,38 @@ th {
     th, td {
         padding: 6px;
         font-size: 10px;
+    }
+
+    .page-indicator {
+        font-size: 1.1rem;
+        padding: 22px 0 12px 0;
+        border-radius: 0 0 10px 10px;
+    }
+
+    .navigation {
+        flex-direction: column;
+        padding: 12px 16px;
+        gap: 12px;
+    }
+
+    .nav-btn-group {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .nav-btn {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .nav-search-group {
+        width: 100%;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px 12px 8px 36px;
+        font-size: 0.85rem;
     }
 }
